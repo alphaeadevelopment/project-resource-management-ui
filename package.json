@@ -1,0 +1,62 @@
+{
+  "name": "@alphaeadev/project-resource-management-ui",
+  "version": "1.0.0",
+  "description": "Online Project Resource Management Application",
+  "scripts": {
+    "test": "mocha-webpack --webpack-config config/webpack.mocha.js --require mocha.setup.js --glob \"*.spec.js*\" --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit --recursive src --watch",
+    "build": "webpack --config=config/webpack.dev.js",
+    "serve": "nodemon src/server/main.js",
+    "deploy:test": "ENV=test npm run deploy",
+    "deploy": "node-cf-deploy --name PRR-${ENV} -P SubDomainName=prr-${ENV} -f config/cloudformation/stack.json -S"
+  },
+  "keywords": [],
+  "author": "Graham King <gking2224@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@alphaeadev/common-ui-components": "^1.0.2",
+    "@alphaeadev/js-services": "^1.0.1",
+    "@alphaeadev/test-es6-npm-module": "^1.0.2",
+    "@alphaeadev/test-npm-module": "^1.0.3",
+    "express": "^4.16.2",
+    "immutability-helper": "^2.6.4",
+    "react": "^16.2.0",
+    "react-dom": "^16.2.0",
+    "react-redux": "^5.0.6",
+    "react-router-dom": "^4.2.2",
+    "redux": "^3.7.2",
+    "redux-actions": "^2.2.1",
+    "redux-logger": "^3.0.6",
+    "redux-thunk": "^2.2.0",
+    "reselect": "^3.0.1"
+  },
+  "devDependencies": {
+    "@alphaeadev/node-cf-deploy": "^1.0.2",
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "chai": "^4.1.2",
+    "chai-enzyme": "^1.0.0-beta.0",
+    "clean-webpack-plugin": "^0.1.17",
+    "css-loader": "^0.28.8",
+    "enzyme": "^3.3.0",
+    "enzyme-adapter-react-16": "^1.1.1",
+    "extract-text-webpack-plugin": "^3.0.2",
+    "html-webpack-plugin": "^2.30.1",
+    "inject-loader": "^3.0.1",
+    "mocha": "^4.1.0",
+    "mocha-webpack": "^1.0.1",
+    "mochawesome": "^3.0.1",
+    "node-sass": "^4.7.2",
+    "sass-loader": "^6.0.6",
+    "sinon": "^4.1.5",
+    "sinon-chai": "^2.14.0",
+    "style-loader": "^0.19.1",
+    "webpack": "^3.10.0",
+    "webpack-dev-middleware": "^2.0.4"
+  },
+  "publishConfig": {
+    "registry": "http://nexus.alphaea.uk/repository/npm-releases/"
+  }
+}
