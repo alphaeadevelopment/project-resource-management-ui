@@ -25,7 +25,9 @@ const babelExclude = /node_modules[\\/](?!@alphaeadev\/test-es6-npm-module|@alph
 
 var config = {
   entry: {
-    main: path.join(__dirname, '../src/client', 'index.jsx'),
+    main: [
+      path.join(__dirname, '../src/client', 'index.jsx'),
+    ],
     vendor: VENDOR_LIBS,
   },
   output: {
@@ -89,7 +91,8 @@ var config = {
     new webpack.ProvidePlugin({
       '_': 'lodash',
     }),
-  ]
+  ],
+  target: 'web'
 }
-console.log(JSON.stringify(config, undefined, 2));
+// console.log(JSON.stringify(config, undefined, 2));
 module.exports = config

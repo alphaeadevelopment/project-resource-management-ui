@@ -1,10 +1,21 @@
-const path = require('path')
+const path = require('path');
+const fs = require('fs');
 const webpack = require('webpack')
 const ExtractTextPlugin = require("extract-text-webpack-plugin")
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const CleanWebpackPlugin = require('clean-webpack-plugin')
+const moduleConfig = require(fs.existsSync(path.join(__dirname, '../module-config.js')) ? '../module-config' : '../default-module-config.js');
+
+const defaultAliases = {
+  'branding': path.join(__dirname, '../styles/branding'),
+  'mixins': path.join(__dirname, '../styles/mixins'),
+  'api-stubs': path.join(__dirname, '../src/stubs/empty-stubs'),
+}
+const aliases = Object.assign({}, defaultAliases, moduleConfig.aliases);
 
 const extractScss = new ExtractTextPlugin({ filename: "style.css", allChunks: true })
+
+const babelExclude = /node_modules[\\/](?!@alphaeadev\/test-es6-npm-module|@alphaeadev\/(common-ui-components|js-services))/
 
 var config = {
   entry: path.join(__dirname, '../src/client', 'index.jsx'),
@@ -18,7 +29,7 @@ var config = {
       {
         test: /\.jsx?$/,
         use: ['babel-loader'],
-        exclude: /node_modules/,
+        exclude: babelExclude,
       },
       {
         test: /\.scss$/,
@@ -51,10 +62,7 @@ var config = {
     ]
   },
   resolve: {
-    alias: {
-      'branding': path.join(__dirname, '../styles/branding'),
-      'mixins': path.join(__dirname, '../styles/mixins')
-    },
+    alias: aliases,
     extensions: ['.js', '.jsx'],
   },
   plugins: [
@@ -69,6 +77,7 @@ var config = {
     new webpack.ProvidePlugin({
       '_': 'lodash',
     }),
-  ]
+  ],
+  target: 'node'
 }
 module.exports = config

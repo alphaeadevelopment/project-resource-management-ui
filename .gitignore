@@ -2,5 +2,4 @@
 /node_modules
 /mochawesome-report-unit
 /config/useStubs
-/config/useStubs.x
 /module-config.js
