@@ -17,7 +17,7 @@ const useStubs = fs.existsSync(path.join(__dirname, 'useStubs'));
 const defaultAliases = {
   'branding': path.join(__dirname, '../styles/branding'),
   'mixins': path.join(__dirname, '../styles/mixins'),
-  'api-stubs': useStubs ? path.join(__dirname, '../src/stubs/api-stubs.js') : {},
+  'api-stubs': path.join(__dirname, '../src/stubs/', useStubs ? 'api-stubs.js' : 'empty-stubs.js'),
 }
 const aliases = Object.assign({}, defaultAliases, moduleConfig.aliases);
 

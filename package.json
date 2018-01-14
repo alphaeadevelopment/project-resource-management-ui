@@ -7,7 +7,7 @@
     "build": "webpack --config=config/webpack.dev.js",
     "serve": "nodemon src/server/main.js",
     "deploy:test": "ENV=test npm run deploy",
-    "deploy": "node-cf-deploy --name PRR-${ENV} -P SubDomainName=prr-${ENV} -f config/cloudformation/stack.json -S"
+    "deploy": "node-cf-deploy update-stack --name PRR-${ENV} -P SubDomainName=prr -P Env=${ENV} -f config/cloudformation/stack.json -S"
   },
   "keywords": [],
   "author": "Graham King <gking2224@gmail.com>",

@@ -71,17 +71,7 @@
           {
             "Key": "Name",
             "Value": {
-              "Fn::Join": [
-                "-",
-                [
-                  {
-                    "Ref": "NodeModule"
-                  },
-                  {
-                    "Ref": "SubDomainName"
-                  }
-                ]
-              ]
+              "Ref": "SubDomainName"
             },
             "PropagateAtLaunch": true
           }
@@ -157,6 +147,10 @@
               {
                 "Ref": "SubDomainName"
               },
+              "-",
+              {
+                "Ref": "Env"
+              },
               ".alphaea.uk."
             ]
           ]
@@ -201,12 +195,12 @@
     },
     "NodeModule": {
       "Type": "String",
-      "Default": "project-resource-management",
+      "Default": "project-resource-management-ui",
       "Description": "The node module name"
     },
     "BootstrapScriptName": {
       "Type": "String",
-      "Default": "node",
+      "Default": "node-bootstrap",
       "Description": "Name of Bootstrap script"
     },
     "InstancePort": {
@@ -218,6 +212,10 @@
       "Type": "String",
       "Default": "ec2-node-server-role",
       "Description": "IAM Role for the EC2 instance"
+    },
+    "Env": {
+      "Type": "String",
+      "Description": "Environment"
     }
   }
 }
