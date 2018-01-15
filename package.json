@@ -1,6 +1,6 @@
 {
   "name": "@alphaeadev/project-resource-management-ui",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Online Project Resource Management Application",
   "scripts": {
     "test": "mocha-webpack --webpack-config config/webpack.mocha.js --require mocha.setup.js --glob \"*.spec.js*\" --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit --recursive src --watch",
