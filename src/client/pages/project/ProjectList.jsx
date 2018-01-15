@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import Page from '../../containers/Page';
 import { loadProjects } from '../../actions';
 import { getProjects } from '../../selectors';
 
@@ -11,13 +12,13 @@ class RawProjectList extends React.Component {
   render() {
     const { projects } = this.props;
     return (
-      <div>
+      <Page id={'project-list'}>
         <ul>
           {Object.values(projects).map(p => (
             <Link to={`/projects/id/${p.id}`} key={p.name}>{p.name}</Link>
           ))}
         </ul>
-      </div>
+      </Page>
     );
   }
 }

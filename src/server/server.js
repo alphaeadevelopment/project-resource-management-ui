@@ -5,7 +5,6 @@ import webpackDevMiddleware from 'webpack-dev-middleware';
 
 import webpackConfig from '../../config/webpack.dev';
 
-console.log(process.env.NODE_ENV);
 const app = express();
 if (process.env.NODE_ENV !== 'production') {
   app.use(webpackDevMiddleware(webpack(webpackConfig)));

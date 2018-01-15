@@ -2,28 +2,24 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { getIsLoggedIn } from '../selectors';
-import Menu from './Menu';
-import Body from './Body';
+import { validateLoginSession } from '../actions';
 import Login from './Login';
+import PostLogin from './PostLogin';
 
-const PostLogin = () => (
-  <div>
-    <Menu />
-    <Body />
-  </div>
-);
+const INITIAL_PAGE = '/home';
 
-// export default ({ isLoggedIn }) => {
-export const RawApp = ({ isLoggedIn }) => {
+export const RawApp = ({ isLoggedIn, history, validateSession }) => {
   if (!isLoggedIn) {
+    if (history.location.pathname !== INITIAL_PAGE) {
+      history.push(INITIAL_PAGE);
+      return null;
+    }
     return (
       <Login />
     );
   }
   return (
-    <div>
-      <PostLogin isLoggedIn={isLoggedIn} />
-    </div>
+    <PostLogin validateSession={validateSession} />
   );
 };
 
@@ -31,4 +27,8 @@ const mapStateToProps = state => ({
   isLoggedIn: getIsLoggedIn(state),
 });
 
-export default withRouter(connect(mapStateToProps)(RawApp));
+const dispatchToActions = dispatch => ({
+  validateSession: () => dispatch(validateLoginSession()),
+});
+
+export default withRouter(connect(mapStateToProps, dispatchToActions)(RawApp));

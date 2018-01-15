@@ -1,8 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Redirect } from 'react-router-dom';
 import { logout } from '../actions';
-import Paths from '../paths';
 
 class RawLogout extends React.Component {
   componentDidMount() {
@@ -10,9 +8,7 @@ class RawLogout extends React.Component {
   }
   render() {
     return (
-      <div>
-        <Redirect to={Paths.Welcome} />
-      </div>
+      <div />
     );
   }
 }
