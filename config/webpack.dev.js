@@ -37,7 +37,6 @@ var config = {
   devtool: 'inline-source-map',
   module: {
     rules: [
-      { enforce: 'pre', test: /\.jsx?$/, loader: 'eslint-loader', exclude: babelExclude },
       {
         test: /\.jsx?$/,
         use: ['babel-loader'],
@@ -78,16 +77,6 @@ var config = {
     extensions: ['.js', '.jsx'],
   },
   plugins: [
-    new webpack.LoaderOptionsPlugin({
-      options: {
-        eslint: {
-          configFile: path.join(__dirname, '../.eslintrc.js'),
-          failOnWarning: false,
-          failOnError: true,
-          exclude: [babelExclude, /\/dist/],
-        },
-      },
-    }),
     new CleanWebpackPlugin([path.join(__dirname, '../dist')], { root: process.cwd() }),
     extractScss,
     new HtmlWebpackPlugin({
@@ -108,6 +97,23 @@ var config = {
 
 if (process.env.NODE_ENV === 'production') {
   config.plugins.push(new webpack.optimize.UglifyJsPlugin());
+}
+else {
+  config.plugins.push(
+    new webpack.LoaderOptionsPlugin({
+      options: {
+        eslint: {
+          configFile: path.join(__dirname, '../.eslintrc.js'),
+          failOnWarning: false,
+          failOnError: true,
+          exclude: [babelExclude, /\/dist/],
+        },
+      },
+    })
+  );
+  config.module.rules.push(
+    { enforce: 'pre', test: /\.jsx?$/, loader: 'eslint-loader', exclude: babelExclude },
+  );
 }
 // console.log(JSON.stringify(config, undefined, 2));
 module.exports = config

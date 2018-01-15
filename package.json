@@ -7,7 +7,7 @@
     "build:prod": "NODE_ENV=production npm run build",
     "build": "webpack --config=config/webpack.dev.js",
     "serve": "node src/server/main.js",
-    "serve:prod": "node src/server/main.js",
+    "serve:prod": "export NODE_ENV=production && node src/server/main.js",
     "deploy:test": "ENV=test npm run deploy",
     "deploy": "node-cf-deploy update-stack --name PRR-${ENV} -P SubDomainName=prr -P Env=${ENV} -f config/cloudformation/stack.json -P Version=$(cat package.json | jq .version | awk -F'\"' '{print $2}') -S ",
     "v": "echo $(cat package.json | jq .version | awk -F'\"' '{print $2}')",
@@ -31,7 +31,9 @@
     "redux-actions": "^2.2.1",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.2.0",
-    "reselect": "^3.0.1"
+    "reselect": "^3.0.1",
+    "webpack": "^3.10.0",
+    "webpack-dev-middleware": "^2.0.4"
   },
   "devDependencies": {
     "@alphaeadev/node-cf-deploy": "^1.0.4",
@@ -63,9 +65,7 @@
     "sinon": "^4.1.5",
     "sinon-chai": "^2.14.0",
     "style-loader": "^0.19.1",
-    "testdom": "^2.0.0",
-    "webpack": "^3.10.0",
-    "webpack-dev-middleware": "^2.0.4"
+    "testdom": "^2.0.0"
   },
   "publishConfig": {
     "registry": "http://nexus.alphaea.uk/repository/npm-releases/"
