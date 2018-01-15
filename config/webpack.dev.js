@@ -1,3 +1,4 @@
+/* eslint-disable */
 const fs = require('fs');
 const path = require('path')
 const webpack = require('webpack')
@@ -9,7 +10,8 @@ const moduleConfig = require(fs.existsSync(path.join(__dirname, '../module-confi
 const extractScss = new ExtractTextPlugin({ filename: "style.css", allChunks: true })
 const VENDOR_LIBS = [
   'immutability-helper', 'react', 'react-dom', 'react-redux', 'react-router-dom',
-  'redux', 'redux-actions', 'redux-logger', 'redux-thunk', 'reselect',
+  'redux', 'redux-actions', 'redux-logger', 'redux-thunk', 'reselect', 'fetch-everywhere', 'moment',
+  'lodash', 'rx'
 ];
 
 const useStubs = fs.existsSync(path.join(__dirname, 'useStubs'));
@@ -25,9 +27,7 @@ const babelExclude = /node_modules[\\/](?!@alphaeadev\/test-es6-npm-module|@alph
 
 var config = {
   entry: {
-    main: [
-      path.join(__dirname, '../src/client', 'index.jsx'),
-    ],
+    main: path.join(__dirname, '../src/client', 'index.jsx'),
     vendor: VENDOR_LIBS,
   },
   output: {
@@ -37,6 +37,7 @@ var config = {
   devtool: 'inline-source-map',
   module: {
     rules: [
+      { enforce: 'pre', test: /\.jsx?$/, loader: 'eslint-loader', exclude: babelExclude },
       {
         test: /\.jsx?$/,
         use: ['babel-loader'],
@@ -77,6 +78,16 @@ var config = {
     extensions: ['.js', '.jsx'],
   },
   plugins: [
+    new webpack.LoaderOptionsPlugin({
+      options: {
+        eslint: {
+          configFile: path.join(__dirname, '../.eslintrc.js'),
+          failOnWarning: false,
+          failOnError: true,
+          exclude: [babelExclude, /\/dist/],
+        },
+      },
+    }),
     new CleanWebpackPlugin([path.join(__dirname, '../dist')], { root: process.cwd() }),
     extractScss,
     new HtmlWebpackPlugin({
@@ -93,6 +104,10 @@ var config = {
     }),
   ],
   target: 'web'
+}
+
+if (process.env.NODE_ENV === 'production') {
+  config.plugins.push(new webpack.optimize.UglifyJsPlugin());
 }
 // console.log(JSON.stringify(config, undefined, 2));
 module.exports = config

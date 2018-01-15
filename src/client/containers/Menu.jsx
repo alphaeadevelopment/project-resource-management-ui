@@ -3,18 +3,20 @@ import { Link } from 'react-router-dom';
 import styles from './Menu.scss';
 import Paths from '../paths';
 
-export default () => (
+const Menu = () => (
   <nav>
     <ul className={styles.menu}>
       <li>
         <Link to={Paths.Home}>Home</Link>
       </li>
       <li>
-        <Link to={Paths.Counter}>Counter</Link>
+        <Link to={Paths.ProjectList}>Projects</Link>
       </li>
       <li>
-        <Link to={Paths.TestIntegration}>TestIntegration</Link>
+        <Link to={Paths.Logout}>Logout</Link>
       </li>
     </ul>
   </nav>
 );
+
+export default Menu;

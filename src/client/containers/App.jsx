@@ -1,20 +1,34 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
-import { tick } from '../actions';
-import { getCount } from '../selectors';
+import { getIsLoggedIn } from '../selectors';
 import Menu from './Menu';
 import Body from './Body';
-import testNpmModule from '@alphaeadev/test-npm-module';
-import testEs6NpmModule from '@alphaeadev/test-es6-npm-module';
+import Login from './Login';
 
-export default ({ count, tick }) => {
-  testNpmModule();
-  testEs6NpmModule();
+const PostLogin = () => (
+  <div>
+    <Menu />
+    <Body />
+  </div>
+);
+
+// export default ({ isLoggedIn }) => {
+export const RawApp = ({ isLoggedIn }) => {
+  if (!isLoggedIn) {
+    return (
+      <Login />
+    );
+  }
   return (
     <div>
-      <Menu />
-      <Body />
+      <PostLogin isLoggedIn={isLoggedIn} />
     </div>
   );
-}
+};
+
+const mapStateToProps = state => ({
+  isLoggedIn: getIsLoggedIn(state),
+});
+
+export default withRouter(connect(mapStateToProps)(RawApp));

@@ -74,6 +74,13 @@
               "Ref": "SubDomainName"
             },
             "PropagateAtLaunch": true
+          },
+          {
+            "Key": "Version",
+            "Value": {
+              "Ref": "Version"
+            },
+            "PropagateAtLaunch": true
           }
         ],
         "TerminationPolicies": [
@@ -216,6 +223,10 @@
     "Env": {
       "Type": "String",
       "Description": "Environment"
+    },
+    "Version": {
+      "Type": "String",
+      "Description": "Version"
     }
   }
 }

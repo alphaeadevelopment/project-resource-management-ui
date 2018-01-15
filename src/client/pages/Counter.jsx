@@ -1,26 +1,21 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'react-redux';
-import { tick } from '../actions';
+import { tick as doTick } from '../actions';
 import { getCount } from '../selectors';
 
-export const RawCounter = ({ count, tick }) => {
-  return (
-    <div>
-      <p>{count}</p>
-      <button onClick={tick}>Increment</button>
-    </div>
-  );
-}
-const mapStateToProps = (state) => {
-  return ({
-    count: getCount(state),
-  });
-}
-const dispatchToActions = (dispatch) => {
-  return {
-    tick: () => dispatch(tick()),
-  }
-}
+export const RawCounter = ({ count, tick }) => (
+  <div>
+    <p>{count}</p>
+    <button onClick={tick}>Increment</button>
+  </div>
+);
 
-export default connect(mapStateToProps, dispatchToActions)(RawCounter)
+const mapStateToProps = state => ({
+  count: getCount(state),
+});
+
+const dispatchToActions = dispatch => ({
+  tick: () => dispatch(doTick()),
+});
+
+export default connect(mapStateToProps, dispatchToActions)(RawCounter);
