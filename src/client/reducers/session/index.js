@@ -1,9 +1,11 @@
 import update from 'immutability-helper';
+import { window } from '@alphaeadev/js-services';
 import { SUCCESSFUL_LOGIN, FAILED_LOGIN, LOGOUT } from '../../action-types';
 
 const initial = {
   isLoggedIn: false,
   username: null,
+  token: window.localStorage.getItem('token'),
 };
 export default (state = initial, { type, payload }) => {
   switch (type) {

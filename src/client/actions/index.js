@@ -1,5 +1,5 @@
 import { createAction } from 'redux-actions';
-import { api } from '@alphaeadev/js-services';
+import { window, api } from '@alphaeadev/js-services';
 import {
   TICK, LOGOUT, SUCCESSFUL_LOGIN, FAILED_LOGIN, PROJECTS_LOADED,
   SET_CURRENT_PROJECT,
@@ -13,15 +13,15 @@ export const setCurrentProject = createAction(SET_CURRENT_PROJECT);
 export const logout = createAction(LOGOUT);
 
 export const keepSessionAlive = () => () => {
-  api.post('/keep-alive')
+  api.post('/auth/keep-alive')
     .then(() => null)
     .catch((err) => {
       console.error('Failed to keep session alive:', err); // eslint-disable-line no-console
     });
 };
 
-export const validateLoginSession = () => (dispatch) => {
-  api.get('/validate-session')
+export const validateLoginSession = token => (dispatch) => {
+  api.post('/auth/validate-session', { token })
     .then((response) => {
       if (response.statusCode !== 200) {
         dispatch(failedLogin({ message: response.message }));
@@ -32,9 +32,10 @@ export const validateLoginSession = () => (dispatch) => {
     });
 };
 export const login = username => (dispatch) => {
-  api.post('/login', { username })
+  api.post('/auth/login', { username })
     .then((response) => {
       if (response.statusCode === 200) {
+        window.localStorage.setItem('token', response.token);
         dispatch(successfulLogin({ username }));
       }
       else if (response.statusCode === 403) {

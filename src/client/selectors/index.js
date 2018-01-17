@@ -4,6 +4,7 @@ export const getIsLoggedInFromState = state => state.session.isLoggedIn;
 export const getAuthErrorMessageFromState = state => state.session.errorMessage;
 export const getCountFromState = state => state.model.count;
 export const getProjectsFromState = state => state.model.project.all;
+export const getAuthTokenFromState = state => state.session.token;
 
 export const getCount = createSelector(
   [getCountFromState],
@@ -18,6 +19,11 @@ export const getIsLoggedIn = createSelector(
 export const getAuthErrorMessage = createSelector(
   [getAuthErrorMessageFromState],
   m => m,
+);
+
+export const getAuthToken = createSelector(
+  [getAuthTokenFromState],
+  t => t,
 );
 
 export const getProjects = createSelector(
