@@ -9,6 +9,10 @@ import PostLogin from './PostLogin';
 const INITIAL_PAGE = '/home';
 
 export class RawApp extends React.Component {
+  constructor(props) {
+    super(props);
+    this.validateSession = this.validateSession.bind(this);
+  }
   componentDidMount() {
     const { token, isLoggedIn } = this.props;
     if (!isLoggedIn && token) {
@@ -41,7 +45,7 @@ const mapStateToProps = state => ({
 });
 
 const dispatchToActions = dispatch => ({
-  validateSession: () => dispatch(validateLoginSession()),
+  validateSession: token => dispatch(validateLoginSession(token)),
 });
 
 export default withRouter(connect(mapStateToProps, dispatchToActions)(RawApp));

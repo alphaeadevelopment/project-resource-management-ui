@@ -12,6 +12,7 @@ module.exports = {
     "jsx-quotes": ["error", "prefer-single"],
     "quote-props": ["error", "consistent"],
     "max-len": ["warn", { "code": 120 }],
-    "brace-style": ["error", "stroustrup"]
+    "brace-style": ["error", "stroustrup"],
+    "no-plusplus": "off"
   }
 }

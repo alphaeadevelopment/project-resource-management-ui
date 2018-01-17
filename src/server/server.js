@@ -4,7 +4,7 @@ import webpack from 'webpack';
 import webpackDevMiddleware from 'webpack-dev-middleware';
 import bodyParser from 'body-parser';
 import webpackConfig from '../../config/webpack.dev';
-import { loginHandler, keepAliveHandler, validateHandler } from './authentication';
+import { loginHandler, keepAliveHandler, validateHandler } from './auth';
 
 const configuredWebpack = webpack(webpackConfig);
 const app = express();

@@ -1,11 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { api } from '@alphaeadev/js-services';
+import { getAuthToken } from '../selectors';
 import { keepSessionAlive } from '../actions';
 
 export class RawPage extends React.Component {
   componentDidMount() {
-    this.props.keepAlive();
+    this.props.keepAlive(this.props.token);
     api.post('/analytics/page/enter', { id: this.props.id, timestamp: new Date().getTime() });
   }
   componentWillUnmount() {
@@ -20,11 +21,12 @@ export class RawPage extends React.Component {
   }
 }
 
-const mapStateToProps = () => ({
+const mapStateToProps = state => ({
+  token: getAuthToken(state),
 });
 
 const dispatchToActions = dispatch => ({
-  keepAlive: () => dispatch(keepSessionAlive()),
+  keepAlive: token => dispatch(keepSessionAlive(token)),
 });
 
 export default connect(mapStateToProps, dispatchToActions)(RawPage);

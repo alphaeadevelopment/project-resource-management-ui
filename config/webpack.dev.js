@@ -11,7 +11,7 @@ const extractScss = new ExtractTextPlugin({ filename: "style.css", allChunks: tr
 const VENDOR_LIBS = [
   'immutability-helper', 'react', 'react-dom', 'react-redux', 'react-router-dom',
   'redux', 'redux-actions', 'redux-logger', 'redux-thunk', 'reselect', 'fetch-everywhere', 'moment',
-  'lodash', 'rx'
+  'lodash', 'rx', 'sha.js', 'node-rsa', 'jsonwebtoken',
 ];
 
 const useStubs = fs.existsSync(path.join(__dirname, 'useStubs'));
@@ -20,6 +20,7 @@ const defaultAliases = {
   'branding': path.join(__dirname, '../styles/branding'),
   'mixins': path.join(__dirname, '../styles/mixins'),
   'api-stubs': path.join(__dirname, '../src/stubs/', useStubs ? 'api-stubs.js' : 'empty-stubs.js'),
+  'publickey.pem': path.join(__dirname, '../keys', 'publickey.pem'),
 }
 const aliases = Object.assign({}, defaultAliases, moduleConfig.aliases);
 
@@ -69,6 +70,10 @@ var config = {
             loader: 'image-webpack-loader',
           }
         ]
+      },
+      {
+        test: /\.pem$/,
+        use: 'raw-loader',
       }
     ]
   },
