@@ -10,7 +10,7 @@
     "serve:dev": "export NODE_ENV=dev; npm run use:stubs && nodemon -w src/server src/server/main.js",
     "serve": "node src/server/main.js",
     "serve:prod": "export NODE_ENV=production && node src/server/main.js",
-    "deploy:test": "ENV=test npm run deploy && npm run terminate:ec2:test",
+    "deploy:test": "ENV=test npm run deploy && npm run terminate:ec2",
     "deploy:bootstrap": "aws s3 cp config/cloudformation/ec2-bootstrap.sh s3://alphaea-uk-scripts/prr-ec2",
     "deploy": "node-cf-deploy update-stack --name PRR-${ENV} -P SubDomainName=prr -P BootstrapScriptName=prr-ec2 -P Env=${ENV} -f config/cloudformation/stack.json -P Version=$(cat package.json | jq .version | awk -F'\"' '{print $2}') -S ",
     "terminate:ec2": "node-cf-deploy terminate-instances-by-tags -T aws:cloudformation:stack-name=PRR-${ENV}",

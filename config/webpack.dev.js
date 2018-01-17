@@ -82,7 +82,6 @@ var config = {
     extensions: ['.js', '.jsx'],
   },
   plugins: [
-    new CleanWebpackPlugin([path.join(__dirname, '../dist')], { root: process.cwd() }),
     extractScss,
     new HtmlWebpackPlugin({
       template: 'src/client/index.html',
@@ -100,9 +99,14 @@ var config = {
   target: 'web'
 }
 
+// PROD ONLY
 if (process.env.NODE_ENV === 'production') {
-  config.plugins.push(new webpack.optimize.UglifyJsPlugin());
+  config.plugins.push(
+    new CleanWebpackPlugin([path.join(__dirname, '../dist')], { root: process.cwd() }),
+    new webpack.optimize.UglifyJsPlugin(),
+  );
 }
+// NON-PROD ONLY
 else {
   config.plugins.push(
     new webpack.LoaderOptionsPlugin({
