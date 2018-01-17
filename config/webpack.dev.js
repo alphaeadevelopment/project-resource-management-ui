@@ -102,13 +102,13 @@ var config = {
 // PROD ONLY
 if (process.env.NODE_ENV === 'production') {
   config.plugins.push(
-    new CleanWebpackPlugin([path.join(__dirname, '../dist')], { root: process.cwd() }),
     new webpack.optimize.UglifyJsPlugin(),
   );
 }
 // NON-PROD ONLY
 else {
   config.plugins.push(
+    new CleanWebpackPlugin([path.join(__dirname, '../dist')], { root: process.cwd() }),
     new webpack.LoaderOptionsPlugin({
       options: {
         eslint: {
