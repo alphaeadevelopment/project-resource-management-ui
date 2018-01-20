@@ -1,5 +1,6 @@
 import React from 'react';
 import { render } from 'react-dom';
+// import fetch from 'fetch-everywhere';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { HashRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -29,5 +30,4 @@ const AppContainer = () => (
     </Provider>
   </Router>
 );
-
 render(<AppContainer />, document.getElementById('react-root'));

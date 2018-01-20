@@ -24,7 +24,7 @@ const defaultAliases = {
 }
 const aliases = Object.assign({}, defaultAliases, moduleConfig.aliases);
 
-const babelExclude = /node_modules[\\/](?!@alphaeadev\/test-es6-npm-module|@alphaeadev\/(common-ui-components|js-services))/
+const babelExclude = /node_modules[\\/](?!@alphaeadev\/(config-client|common-ui-components|js-services))/
 
 var config = {
   entry: {
@@ -91,6 +91,7 @@ var config = {
     }),
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
+      'process.env.ENV': JSON.stringify(process.env.ENV),
     }),
     new webpack.ProvidePlugin({
       '_': 'lodash',
@@ -109,20 +110,20 @@ if (process.env.NODE_ENV === 'production') {
 else {
   config.plugins.push(
     new CleanWebpackPlugin([path.join(__dirname, '../dist')], { root: process.cwd() }),
-    new webpack.LoaderOptionsPlugin({
-      options: {
-        eslint: {
-          configFile: path.join(__dirname, '../.eslintrc.js'),
-          failOnWarning: false,
-          failOnError: true,
-          exclude: [babelExclude, /\/dist/],
-        },
-      },
-    })
+    // new webpack.LoaderOptionsPlugin({
+    //   options: {
+    //     eslint: {
+    //       configFile: path.join(__dirname, '../.eslintrc.js'),
+    //       failOnWarning: false,
+    //       failOnError: true,
+    //       ignorePatten: ["node_modules", "dist", "**/config-client/**"]
+    //     },
+    //   },
+    // })
   );
-  config.module.rules.push(
-    { enforce: 'pre', test: /\.jsx?$/, loader: 'eslint-loader', exclude: babelExclude },
-  );
+  // config.module.rules.push(
+  //   { enforce: 'pre', test: /\.jsx?$/, loader: 'eslint-loader', exclude: babelExclude },
+  // );
 }
 // console.log(JSON.stringify(config, undefined, 2));
 module.exports = config

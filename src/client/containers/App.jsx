@@ -1,6 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
+import { withConfig } from '@alphaeadev/config-client';
 import { getIsLoggedIn, getAuthToken } from '../selectors';
 import { validateLoginSession } from '../actions';
 import Login from './Login';
@@ -48,4 +49,5 @@ const dispatchToActions = dispatch => ({
   validateSession: token => dispatch(validateLoginSession(token)),
 });
 
-export default withRouter(connect(mapStateToProps, dispatchToActions)(RawApp));
+export default withConfig(
+  withRouter(connect(mapStateToProps, dispatchToActions)(RawApp)))('project-resource-management-ui');
