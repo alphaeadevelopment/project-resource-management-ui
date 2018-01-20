@@ -13,7 +13,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 const publicPath = path.join(__dirname, '..', '..', 'dist');
-app.use('assets', express.static(publicPath));
+app.use(express.static(publicPath));
 app.use('/auth', authRouter);
 app.get('/ping', (req, res) => res.status(200).send());
 app.use(bodyParser.json());
