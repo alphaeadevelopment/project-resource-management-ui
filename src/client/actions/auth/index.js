@@ -21,7 +21,7 @@ const removeToken = () => {
   window.localStorage.removeItem(TOKEN_STORAGE_KEY);
 };
 export const keepSessionAlive = token => (dispatch) => {
-  api.post('/auth/keep-alive', { token })
+  api.post('http://localhost:3003/auth/keep-alive', { token })
     .then(res => dispatch(sessionRefreshed({ token: res.token })))
     .catch((err) => {
       console.error('Failed to keep session alive:', err); // eslint-disable-line no-console
@@ -34,7 +34,7 @@ export const logout = () => (dispatch) => {
 };
 
 export const validateLoginSession = token => (dispatch) => {
-  api.post('/auth/validate-session', { token })
+  api.post('http://localhost:3003/auth/validate-session', { token })
     .then((response) => {
       if (response.statusCode !== 200) {
         removeToken();
@@ -51,7 +51,7 @@ export const validateLoginSession = token => (dispatch) => {
 };
 
 export const login = (username, password) => (dispatch) => {
-  api.post('/auth/login', { username, ...hashPassword(username, password) })
+  api.post('http://localhost:3003/auth/login', { username, ...hashPassword(username, password) })
     .then((response) => {
       if (response.statusCode === 200) {
         storeToken(response.token);

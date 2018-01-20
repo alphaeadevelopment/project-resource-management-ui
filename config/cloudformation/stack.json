@@ -227,6 +227,10 @@
     "Version": {
       "Type": "String",
       "Description": "Version"
+    },
+    "GitTag": {
+      "Type": "String",
+      "Description": "git tag"
     }
   }
 }

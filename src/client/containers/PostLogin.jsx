@@ -3,7 +3,7 @@ import React from 'react';
 import Menu from './Menu';
 import Body from './Body';
 
-const INTERVAL = 10000;
+const INTERVAL = 60000;
 
 export default class PostLogin extends React.Component {
   componentDidMount() {
