@@ -13,7 +13,7 @@
     "deploy": "npm version patch && git push && git push --tags && cross-env ENV=${ENV:-test} VERSION=`jq .version package.json` npm run deploy:inner",
     "deploy:inner": "npm run deploy:bootstrap && npm run deploy:cf",
     "deploy:bootstrap": "aws s3 cp config/cloudformation/ec2-bootstrap.sh s3://alphaea-uk-scripts/prr-ec2",
-    "deploy:cf": "node-cf-deploy update-stack --name PRR-${ENV} -P Env=${ENV} -P SubDomainName=prr-${ENV} -P EnvVars=\"NODE_ENV=production ENV=${ENV}\"-P BootstrapScriptName=node-bootstrap -P GitTag=v${VERSION} -f node_modules/\\@alphaeadev/cf-infra-code/cloudformation-templates/node-cf-template.json -S ",
+    "deploy:cf": "node-cf-deploy update-stack --name PRR-${ENV} -P Env=${ENV} -P NodeModule=project-resource-management-ui -P SubDomainName=prr-${ENV} -P EnvVars=\"NODE_ENV=production ENV=${ENV}\"-P BootstrapScriptName=node-bootstrap -P GitTag=v${VERSION} -f node_modules/\\@alphaeadev/cf-infra-code/cloudformation-templates/node-cf-template.json -S ",
     "terminate:ec2": "node-cf-deploy terminate-stack-instances -n PRR-${ENV}",
     "v": "echo $(cat package.json | jq .version | awk -F'\"' '{print $2}')",
     "use:stubs": "touch config/useStubs"
