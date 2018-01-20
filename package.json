@@ -1,6 +1,6 @@
 {
   "name": "@alphaeadev/project-resource-management-ui",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Online Project Resource Management Application",
   "scripts": {
     "test": "npm run test:ci -- --watch",
