@@ -10,7 +10,7 @@
     "serve:dev": "export NODE_ENV=dev; npm run use:stubs && nodemon -w src/server src/server/main.js",
     "serve": "node src/server/main.js",
     "serve:prod": "export NODE_ENV=production && node src/server/main.js",
-    "deploy": "npm version patch && git push && git push --tags && cross-env ENV=${ENV:-test} VERSION=`jq .version package.json` && npm run deploy:inner",
+    "deploy": "npm version patch && git push && git push --tags && cross-env ENV=${ENV:-test} VERSION=`jq .version package.json` npm run deploy:inner",
     "deploy:inner": "npm run deploy:bootstrap && npm run deploy:cf",
     "deploy:bootstrap": "aws s3 cp config/cloudformation/ec2-bootstrap.sh s3://alphaea-uk-scripts/prr-ec2",
     "deploy:cf": "node-cf-deploy create-stack --name PRR-${ENV} -P Env=${ENV} -P SubDomainName=prr-${ENV} -P EnvVars=\"NODE_ENV=production ENV=${ENV}\"-P BootstrapScriptName=node-bootstrap -P GitTag=v${VERSION} -f node_modules/\\@alphaeadev/cf-infra-code/cloudformation-templates/node-cf-template.json -S ",
