@@ -5,10 +5,9 @@
   "scripts": {
     "test": "npm run test:ci -- --watch",
     "test:ci": "mocha-webpack --webpack-config config/webpack.mocha.js --require mocha.setup.js --glob \"*.spec.js*\" --reporter mochawesome --reporter-options reportDir=mochawesome-report-unit --recursive src",
-    "build:prod": "export NODE_ENV=production && npm run use:stubs && npm run build",
-    "build": "webpack --config=config/webpack.dev.js",
-    "serve:dev": "nodemon -w src/server src/server/main.js",
-    "serve": "node src/server/main.js",
+    "build": "ENV=${ENV:-local} NODE_ENV=${NODE_ENV:-dev} webpack --config=config/webpack.dev.js",
+    "serve:dev": "NODE_ENV=dev ENV=local  nodemon -w src/server src/server/main.js",
+    "serve": "ENV=${ENV:-local} NODE_ENV=${NODE_ENV:-dev} node src/server/main.js",
     "deploy": "npm version patch && git push && git push --tags && cross-env ENV=${ENV:-test} VERSION=`jq .version package.json` npm run deploy:inner",
     "deploy:inner": "npm run deploy:cf && npm run terminate:ec2",
     "deploy:cf": "node-cf-deploy update-stack --name PRR-${ENV} -P Env=${ENV} -P BuildEnv=${ENV} -P NodeModule=project-resource-management-ui -P SubDomainName=prr-${ENV} -P EnvVars=\"NODE_ENV=production ENV=${ENV}\" -P BootstrapScriptName=node-bootstrap -P GitTag=v${VERSION} -f node_modules/\\@alphaeadev/cf-infra-code/cloudformation-templates/node-cf-template.json -S ",
@@ -21,7 +20,7 @@
   "license": "ISC",
   "dependencies": {
     "@alphaeadev/common-ui-components": "^1.0.2",
-    "@alphaeadev/config-client": "^1.0.7",
+    "@alphaeadev/config-client": "^1.0.9",
     "@alphaeadev/js-services": "^1.0.5",
     "@alphaeadev/test-es6-npm-module": "^1.0.2",
     "@alphaeadev/test-npm-module": "^1.0.3",
@@ -76,7 +75,7 @@
     "node-sass": "^4.7.2",
     "raw-loader": "^0.5.1",
     "sass-loader": "^6.0.6",
-    "sinon": "^4.1.6",
+    "sinon": "^4.2.0",
     "sinon-chai": "^2.14.0",
     "style-loader": "^0.19.1",
     "testdom": "^2.0.0"
