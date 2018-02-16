@@ -1,12 +1,13 @@
 import React from 'react';
+import 'typeface-roboto'; // eslint-disable-line import/extensions
+import Reboot from 'material-ui/Reboot';
 import { render } from 'react-dom';
-// import fetch from 'fetch-everywhere';
 import { createStore, applyMiddleware, compose } from 'redux';
 import { HashRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import thunk from 'redux-thunk';
 import { createLogger } from 'redux-logger';
-import { window, document } from '@alphaeadev/js-services';
+import { window, document, configuration } from '@alphaeadev/js-services';
 import reducer from './reducers';
 import App from './containers/App';
 
@@ -22,11 +23,15 @@ const store = createStore(
   reducer,
   composeEnhancers(applyMiddleware(...middleware)),
 );
+configuration.setConfiguration({ apiBaseUri: process.env.PROXY_SERVER });
 
 const AppContainer = () => (
   <Router>
     <Provider store={store}>
-      <App />
+      <div>
+        <Reboot />
+        <App />
+      </div>
     </Provider>
   </Router>
 );

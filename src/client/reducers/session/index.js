@@ -2,7 +2,7 @@ import update from 'immutability-helper';
 import { window } from '@alphaeadev/js-services';
 import {
   SUCCESSFUL_LOGIN, FAILED_LOGIN, LOGOUT, SESSION_VALIDATED, SESSION_REFRESHED,
-} from '../../action-types';
+} from '../../actions/auth/types';
 
 const initial = {
   isLoggedIn: false,

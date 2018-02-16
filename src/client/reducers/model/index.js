@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
-import project from './project';
+import projects from './projects';
+import budgets from './budgets';
 
 export default combineReducers({
-  project,
+  projects, budgets,
 });

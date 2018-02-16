@@ -1,7 +1,4 @@
-import projects from './projects';
-
-export default ({
-  ...projects,
-  Home: '/home',
-  Logout: '/logout',
-});
+export * from './projects';
+export * from './budgets';
+export const Welcome = '/welcome';
+export const Logout = '/logout';

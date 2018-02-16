@@ -3,5 +3,8 @@
     "babel-preset-env",
     "babel-preset-react",
     "babel-preset-stage-0"
+  ],
+  "plugins": [
+    "transform-class-properties"
   ]
 }

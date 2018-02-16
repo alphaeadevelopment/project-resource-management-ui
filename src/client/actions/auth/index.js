@@ -1,12 +1,11 @@
 import { createAction } from 'redux-actions';
-import { configService } from '@alphaeadev/config-client';
 import { window, api } from '@alphaeadev/js-services';
 import { hashPassword } from '../../crypto';
 
 import {
   LOGOUT, SUCCESSFUL_LOGIN, FAILED_LOGIN,
   SESSION_VALIDATED, SESSION_REFRESHED,
-} from '../../action-types';
+} from './types';
 
 export const successfulLogin = createAction(SUCCESSFUL_LOGIN);
 export const sessionValidated = createAction(SESSION_VALIDATED);
@@ -22,10 +21,8 @@ const removeToken = () => {
   window.localStorage.removeItem(TOKEN_STORAGE_KEY);
 };
 
-const authUrl = () => configService.getConfig().authUrl;
-
 export const keepSessionAlive = token => (dispatch) => {
-  api.post(`${authUrl()}/auth/keep-alive`, { token })
+  api.post('/auth/keep-alive', { token })
     .then(res => dispatch(sessionRefreshed({ token: res.token })))
     .catch((err) => {
       console.error('Failed to keep session alive:', err); // eslint-disable-line no-console
@@ -38,7 +35,7 @@ export const logout = () => (dispatch) => {
 };
 
 export const validateLoginSession = token => (dispatch) => {
-  api.post(`${authUrl()}/auth/validate-session`, { token })
+  api.post('/auth/validate-session', { token })
     .then((response) => {
       if (response.statusCode !== 200) {
         removeToken();
@@ -55,7 +52,7 @@ export const validateLoginSession = token => (dispatch) => {
 };
 
 export const login = (username, password) => (dispatch) => {
-  api.post(`${authUrl()}/auth/login`, { username, ...hashPassword(username, password) })
+  api.post('/auth/login', { username, ...hashPassword(username, password) })
     .then((response) => {
       if (response.statusCode === 200) {
         storeToken(response.token);

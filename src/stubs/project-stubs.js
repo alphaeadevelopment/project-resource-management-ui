@@ -1,8 +1,12 @@
 const getAllProjects = () => ({
-  projects: [
+  items: [
     {
       id: 1,
       name: 'Risk Models',
+    },
+    {
+      id: 2,
+      name: 'Raven',
     },
   ],
 });
@@ -10,7 +14,7 @@ const getAllProjects = () => ({
 export default ([
   {
     method: 'GET',
-    path: /\/projects/,
+    path: /\/prj\/projects/,
     value: getAllProjects,
   },
 ]);

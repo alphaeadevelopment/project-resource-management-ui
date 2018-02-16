@@ -1,5 +1,8 @@
 module.exports = {
   extends: 'airbnb',
+  "plugins": [
+    "class-property"
+  ],
   "rules": {
     "react/prop-types": "off",
     "react/jsx-curly-brace-presence": "off",
@@ -13,6 +16,9 @@ module.exports = {
     "quote-props": ["error", "consistent"],
     "max-len": ["warn", { "code": 120 }],
     "brace-style": ["error", "stroustrup"],
-    "no-plusplus": "off"
-  }
+    "no-plusplus": "off",
+    "object-curly-newline": "off",
+    "arrow-body-style": "warn",
+  },
+  "parser": "babel-eslint"
 }

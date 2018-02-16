@@ -8,72 +8,125 @@ const CleanWebpackPlugin = require('clean-webpack-plugin')
 const moduleConfig = require(fs.existsSync(path.join(__dirname, '../module-config.js')) ? '../module-config' : '../default-module-config.js');
 
 const extractScss = new ExtractTextPlugin({ filename: "style.css", allChunks: true })
+const extractCss = new ExtractTextPlugin({ filename: "main.css", allChunks: true })
+
 const VENDOR_LIBS = [
-  'immutability-helper', 'react', 'react-dom', 'react-redux', 'react-router-dom',
-  'redux', 'redux-actions', 'redux-logger', 'redux-thunk', 'reselect', 'fetch-everywhere', 'moment',
-  'lodash', 'rx', 'sha.js', 'node-rsa', 'jsonwebtoken',
+  'classnames',
+  'fetch-everywhere',
+  'immutability-helper',
+  'jsonwebtoken',
+  'lodash',
+  'material-ui-icons',
+  'material-ui',
+  'material-ui-schema-form',
+  'moment',
+  'node-rsa',
+  'react-dom',
+  'react-redux',
+  'react-router-dom',
+  'react',
+  'redux-actions',
+  'redux-logger',
+  'redux-thunk',
+  'redux',
+  'reselect',
+  'rx',
+  'sha.js',
+  'typeface-roboto',
+  'uuid',
 ];
 
-const useStubs = fs.existsSync(path.join(__dirname, 'useStubs'));
-
+console.log(path.join(__dirname, '../src/client/styles/branding'));
 const defaultAliases = {
-  'branding': path.join(__dirname, '../styles/branding'),
-  'mixins': path.join(__dirname, '../styles/mixins'),
-  'api-stubs': path.join(__dirname, '../src/stubs/', useStubs ? 'api-stubs.js' : 'empty-stubs.js'),
+  'branding': path.join(__dirname, '../src/client/styles/branding'),
+  'images': path.join(__dirname, '../assets/images'),
+  'mixins': path.join(__dirname, '../src/client/styles/mixins'),
+  'styles': path.join(__dirname, '../src/client/styles'),
   'publickey.pem': path.join(__dirname, '../keys', 'publickey.pem'),
+  'api-stubs': path.join(__dirname, '../src/stubs/empty-stubs.js'),
+}
+if (process.env.NODE_ENV !== 'production' && process.env.NO_STUBS === undefined) {
+  defaultAliases['api-stubs'] = path.join(__dirname, '../src/stubs/api-stubs.js');
+}
+else {
 }
 const aliases = Object.assign({}, defaultAliases, moduleConfig.aliases);
+console.log(aliases);
 
 const babelExclude = /node_modules[\\/](?!@alphaeadev\/(config-client|common-ui-components|js-services))/
 
 var config = {
   entry: {
-    main: path.join(__dirname, '../src/client', 'index.jsx'),
+    main: [path.join(__dirname, '../src/client', 'index.jsx')],
     vendor: VENDOR_LIBS,
   },
   output: {
     path: path.join(__dirname, '../dist'),
-    filename: '[name].[chunkhash].js',
+    filename: '[name].js',
   },
   devtool: 'inline-source-map',
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
-        use: ['babel-loader'],
-        exclude: babelExclude,
-      },
-      {
-        test: /\.scss$/,
-        use: extractScss.extract({
-          use: [{
-            loader: 'css-loader',
-            options: {
-              localIdentName: '[path]__[name]__[local]__[hash:base64:5]',
-              modules: true,
-              camelCase: true,
-            }
-          }, {
-            loader: 'sass-loader',
-          }]
-        }),
-      },
-      {
-        test: /\.(gif|png|jpe?g|svg)$/i,
-        loaders: [
+        oneOf: [
           {
-            loader: 'url-loader',
+            test: /\.jsx?$/,
+            use: ['babel-loader'],
+            exclude: babelExclude,
+          },
+          {
+            test: /\.scss$/,
+            use: extractScss.extract({
+              use: [{
+                loader: 'css-loader',
+                options: {
+                  localIdentName: '[path]__[name]__[local]__[hash:base64:5]',
+                  modules: true,
+                  camelCase: true,
+                }
+              }, {
+                loader: 'sass-loader',
+              }]
+            }),
+          },
+          {
+            test: /\.css$/,
+            use: extractCss.extract({
+              use: [{
+                loader: 'css-loader',
+                options: {
+                  localIdentName: '[path]__[name]__[local]__[hash:base64:5]',
+                  modules: true,
+                  camelCase: true,
+                }
+              }]
+            }),
+          },
+          {
+            test: /\.(gif|png|jpe?g|svg)$/i,
+            loaders: [
+              {
+                loader: 'url-loader',
+                options: {
+                  limit: 50000,
+                },
+              }, {
+                loader: 'image-webpack-loader',
+              }
+            ]
+          },
+          {
+            test: /\.(pem|txt)$/,
+            use: 'raw-loader',
+          },
+          {
+            exclude: [/\.(js|jsx|mjs)$/, /\.html$/, /\.json$/],
+            loader: 'file-loader',
             options: {
-              limit: 50000,
+              name: 'static/media/[name].[hash:8].[ext]',
             },
-          }, {
-            loader: 'image-webpack-loader',
-          }
+          },
         ]
-      },
-      {
-        test: /\.pem$/,
-        use: 'raw-loader',
       }
     ]
   },
@@ -83,6 +136,7 @@ var config = {
   },
   plugins: [
     extractScss,
+    extractCss,
     new HtmlWebpackPlugin({
       template: 'src/client/index.html',
     }),
@@ -92,9 +146,11 @@ var config = {
     new webpack.DefinePlugin({
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
       'process.env.ENV': JSON.stringify(process.env.ENV),
+      'process.env.PROXY_SERVER': JSON.stringify(process.env.PROXY_SERVER),
     }),
     new webpack.ProvidePlugin({
       '_': 'lodash',
+      'material-ui': 'material-ui',
     }),
   ],
   target: 'web'
@@ -110,6 +166,7 @@ if (process.env.NODE_ENV === 'production') {
 else {
   config.plugins.push(
     new CleanWebpackPlugin([path.join(__dirname, '../dist')], { root: process.cwd() }),
+    new webpack.HotModuleReplacementPlugin(),
     // new webpack.LoaderOptionsPlugin({
     //   options: {
     //     eslint: {
@@ -121,6 +178,7 @@ else {
     //   },
     // })
   );
+  config.entry.main.splice(0, 0, 'webpack-hot-middleware/client');
   // config.module.rules.push(
   //   { enforce: 'pre', test: /\.jsx?$/, loader: 'eslint-loader', exclude: babelExclude },
   // );

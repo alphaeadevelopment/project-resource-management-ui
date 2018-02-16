@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: PRM resources
+Resources:
+  S3Bucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: 'PublicRead'
+      BucketName: 'prm.alphaea.uk'
+      WebsiteConfiguration:
+        IndexDocument: 'index.html'
+  S3BucketPolicy:
+    Type: "AWS::S3::BucketPolicy"
+    Properties:
+      Bucket:
+        Ref: 'S3Bucket'
+      PolicyDocument:
+        Statement:
+          -
+            Action:
+              - "s3:GetObject"
+            Effect: "Allow"
+            Resource:
+              Fn::Join:
+                - ""
+                -
+                  - "arn:aws:s3:::"
+                  -
+                    Ref: "S3Bucket"
+                  - "/*"
+            Principal: "*"
+  Domain:
+    Type: "AWS::Route53::RecordSet"
+    Properties:
+      AliasTarget:
+        DNSName: "s3-website-eu-west-1.amazonaws.com"
+        EvaluateTargetHealth: false
+        HostedZoneId: "Z1BKCTXD74EZPE"
+      HostedZoneName: "alphaea.uk."
+      Name: "prm.alphaea.uk."
+      Type: "A"
