@@ -37,7 +37,7 @@ const VENDOR_LIBS = [
 ];
 
 console.log(path.join(__dirname, '../src/client/styles/branding'));
-const defaultAliases = {
+const alias = {
   'branding': path.join(__dirname, '../src/client/styles/branding'),
   'images': path.join(__dirname, '../assets/images'),
   'mixins': path.join(__dirname, '../src/client/styles/mixins'),
@@ -46,12 +46,12 @@ const defaultAliases = {
   'api-stubs': path.join(__dirname, '../src/stubs/empty-stubs.js'),
 }
 if (process.env.NODE_ENV !== 'production' && process.env.NO_STUBS === undefined) {
-  defaultAliases['api-stubs'] = path.join(__dirname, '../src/stubs/api-stubs.js');
+  alias['api-stubs'] = path.join(__dirname, '../src/stubs/api-stubs.js');
 }
-else {
+if (process.env.NODE_ENV !== 'production') {
+  Object.assign(alias, moduleConfig.aliases);
 }
-const aliases = Object.assign({}, defaultAliases, moduleConfig.aliases);
-console.log(aliases);
+console.log(alias);
 
 const babelExclude = /node_modules[\\/](?!@alphaeadev\/(config-client|common-ui-components|js-services))/
 
@@ -131,7 +131,7 @@ var config = {
     ]
   },
   resolve: {
-    alias: aliases,
+    alias,
     extensions: ['.js', '.jsx'],
   },
   plugins: [

@@ -10,13 +10,14 @@ import getLocationOptions from './get-location-options';
 import { Mods, Keys } from '../../common/keys';
 
 export default withStyles(budgetStyles)(({
-  allocation, idx, classes, type, onChangeMonthAllocation, editing, onSplitAllocation,
-  onFillRight, onFillLeft, staticData,
-  onChangeField, onCellFocussed, activeAllocation, activeRole, activeMonth, roleIdx, onNextCell, onPreviousCell,
+  allocation, classes, type, onChangeMonthAllocation, editing, onSplitAllocation,
+  onFillRight, onFillLeft, staticData, roleId,
+  onChangeField, onCellFocussed, activeAllocation, activeRole, activeMonth, onNextCell, onPreviousCell,
   onGoToMonth, onPreviousRow, onNextRow, onSetRoleExpanded, roleResources,
 }) => {
   const { location, rate } = allocation;
   const resourceId = allocation.resource;
+  const allocationId = allocation.id;
   const resource = staticData.getResource(resourceId);
   return (
     <TableRow>
@@ -54,7 +55,7 @@ export default withStyles(budgetStyles)(({
               className={classes.cell}
               editing={editing}
               onFocus={onCellFocussed(month)}
-              autoFocus={activeAllocation === idx && activeRole === roleIdx && activeMonth === month}
+              autoFocus={activeAllocation === allocationId && activeRole === roleId && activeMonth === month}
               keyActions={
                 [
                   {
@@ -96,12 +97,12 @@ export default withStyles(budgetStyles)(({
                   {
                     key: Keys.Codes.ARROW_DOWN,
                     modifiers: [Mods.ALT],
-                    action: onSetRoleExpanded(roleIdx, true),
+                    action: onSetRoleExpanded(roleId, true),
                   },
                   {
                     key: Keys.Codes.ARROW_UP,
                     modifiers: [Mods.ALT],
-                    action: onSetRoleExpanded(roleIdx, false),
+                    action: onSetRoleExpanded(roleId, false),
                   },
                 ]}
               editingActions={{
@@ -110,7 +111,7 @@ export default withStyles(budgetStyles)(({
                 'Fill left': { onSelect: onFillLeft(month) },
               }}
               onChange={(v) => {
-                onChangeMonthAllocation(idx, month)(v);
+                onChangeMonthAllocation(allocationId, month)(v);
               }}
               value={allocation[type][month]}
             />

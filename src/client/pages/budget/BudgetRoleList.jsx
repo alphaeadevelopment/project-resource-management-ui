@@ -41,10 +41,9 @@ const List = withStyles(budgetStyles)((
           {months.map(i => <TableCell className={classes.cell} padding={'dense'} key={i}>{monthNames[i]}</TableCell>)}
         </TableRow>
       </TableHead>
-      {roleIds.map((id, idx) => (
+      {roleIds.map(id => (
         <RoleRow
           key={id}
-          idx={idx}
           editing={editing}
           onAddAllocation={onAddAllocation(id)}
           role={roles[id]}
@@ -53,7 +52,7 @@ const List = withStyles(budgetStyles)((
           onChangeField={onChangeField(id)}
           onChangeAllocationField={onChangeAllocationField(id)}
           onSplitAllocation={onSplitAllocation(id)}
-          onCellFocussed={onCellFocussed(idx)}
+          onCellFocussed={onCellFocussed(id)}
           onFillLeft={onFillLeft(id)}
           onFillRight={onFillRight(id)}
           onFillRoleLeft={onFillRoleLeft(id)}
@@ -72,6 +71,7 @@ const newRole = () => ({
 });
 
 const newAllocation = resource => ({
+  id: uuid(),
   resource,
   forecast: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   actual: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -80,14 +80,14 @@ const newAllocation = resource => ({
 const duplicateRole = r => update(r, {
   id: { $set: uuid() },
 });
-const duplicateAllocation = (a, name) => update(a, UpdateSpecs.duplicateAllocation(name));
+const duplicateAllocation = (a, resource) => update(a, UpdateSpecs.duplicateAllocation(resource));
 
 // eslint-disable-next-line react/prefer-stateless-function
 class RawBudgetRoleList extends React.Component {
   state = {
-    roles: values(this.props.initialRoles),
-    roleSelected: values(this.props.initialRoles).map(() => false),
-    roleExpanded: values(this.props.initialRoles).map(() => false),
+    roles: this.props.initialRoles,
+    roleSelected: mapValues(this.props.initialRoles, () => false),
+    roleExpanded: mapValues(this.props.initialRoles, () => false),
     activeMonth: 0,
     activeAllocation: null,
     activeRole: 0,
@@ -137,10 +137,10 @@ class RawBudgetRoleList extends React.Component {
   onDeleteItem = () => {
     console.log('Delete selected');
   }
-  onCellFocussed = roleIdx => allocationIdx => month => () => {
+  onCellFocussed = roleId => allocationId => month => () => {
     this.setState(update(this.state, {
-      activeRole: { $set: roleIdx },
-      activeAllocation: { $set: allocationIdx },
+      activeRole: { $set: roleId },
+      activeAllocation: { $set: allocationId },
       activeMonth: { $set: month },
     }));
   }
@@ -149,18 +149,18 @@ class RawBudgetRoleList extends React.Component {
       activeMonth: { $set: m },
     }));
   }
-  onSplitAllocation = roleId => allocIdx => month => () => {
-    const allocation = this.state.roles[roleId].allocations[allocIdx];
+  onSplitAllocation = roleId => allocId => month => () => {
+    const allocation = this.state.roles[roleId].allocations[allocId];
     const newAlloc = duplicateAllocation(allocation, this.nextTbc(roleId));
-    this.setState(update(this.state, UpdateSpecs.splitAllocation(roleId, allocIdx, newAlloc, month)));
+    this.setState(update(this.state, UpdateSpecs.splitAllocation(roleId, allocId, newAlloc, month)));
   }
-  onFillLeft = roleId => (allocIdx, type) => month => () => {
-    const value = this.state.roles[roleId].allocations[allocIdx][type][month];
-    this.setState(update(this.state, UpdateSpecs.fillLeft(roleId, allocIdx, type, month, value)));
+  onFillLeft = roleId => (allocId, type) => month => () => {
+    const value = this.state.roles[roleId].allocations[allocId][type][month];
+    this.setState(update(this.state, UpdateSpecs.fillLeft(roleId, allocId, type, month, value)));
   }
-  onFillRight = roleId => (allocIdx, type) => month => () => {
-    const value = this.state.roles[roleId].allocations[allocIdx][type][month];
-    this.setState(update(this.state, UpdateSpecs.fillRight(roleId, allocIdx, type, month, value)));
+  onFillRight = roleId => (allocId, type) => month => () => {
+    const value = this.state.roles[roleId].allocations[allocId][type][month];
+    this.setState(update(this.state, UpdateSpecs.fillRight(roleId, allocId, type, month, value)));
   }
   onFillRoleLeft = roleId => month => () => {
     const value = this.state.roles[roleId].budget[month];
@@ -170,8 +170,8 @@ class RawBudgetRoleList extends React.Component {
     const value = this.state.roles[roleId].budget[month];
     this.setState(update(this.state, UpdateSpecs.fillRoleRight(roleId, month, value)));
   }
-  onAddAllocation = roleIdx => () => {
-    this.setState(update(this.state, UpdateSpecs.addAllocation(roleIdx, newAllocation(this.nextTbc(roleIdx)))));
+  onAddAllocation = roleId => () => {
+    this.setState(update(this.state, UpdateSpecs.addAllocation(roleId, newAllocation(this.nextTbc(roleId)))));
   }
   onNextCell = () => {
     this.setState(update(this.state, UpdateSpecs.nextCell(this.state)));
@@ -191,8 +191,8 @@ class RawBudgetRoleList extends React.Component {
     const selected = omitBy(roleSelected, s => !s);
     return mapValues(selected, (v, k) => roles[k]);
   }
-  getNumTbcs = roleIdx => filter(this.state.roles[roleIdx].allocations, a => a.resource.indexOf('tbc') === 0).length
-  nextTbc = roleIdx => (`tbc${this.getNumTbcs(roleIdx) + 1}`)
+  getNumTbcs = roleId => filter(values(this.state.roles[roleId].allocations), a => a.resource.indexOf('tbc') === 0).length
+  nextTbc = roleId => (`tbc${this.getNumTbcs(roleId) + 1}`)
   render() {
     const { editing, onStartEdit, onCancelEdit, classes, ...rest } = this.props;
     const { roles, roleSelected, roleExpanded } = this.state;

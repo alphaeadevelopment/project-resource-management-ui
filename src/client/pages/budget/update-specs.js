@@ -1,5 +1,7 @@
 import mapValues from 'lodash/mapValues';
 import values from 'lodash/values';
+import findKey from 'lodash/findKey';
+import size from 'lodash/size';
 import update from 'immutability-helper';
 import uuid from 'uuid';
 
@@ -19,13 +21,13 @@ export const changeMonthAllocation = (roleId, allocationIdx, type, month, value)
 
 export const addRole = role => ({
   roles: {
-    $push: [role],
+    $merge: { [role.id]: role },
   },
   roleSelected: {
-    $push: [false],
+    $merge: { [role.id]: false },
   },
   roleExpanded: {
-    $push: [false],
+    $merge: { [role.id]: false },
   },
 });
 
@@ -50,7 +52,7 @@ export const changeRoleValue = (roleId, field, value, staticData, state) => {
   });
 };
 
-export const changeAllocationValue = (roleId, allocationIdx, field, value, staticData, state) => {
+export const changeAllocationValue = (roleId, allocationId, field, value, staticData, state) => {
   const allocationUpdates = {
     [field]: { $set: value },
   };
@@ -67,7 +69,7 @@ export const changeAllocationValue = (roleId, allocationIdx, field, value, stati
     roles: {
       [roleId]: {
         allocations: {
-          [allocationIdx]: allocationUpdates,
+          [allocationId]: allocationUpdates,
         },
       },
     },
@@ -75,9 +77,9 @@ export const changeAllocationValue = (roleId, allocationIdx, field, value, stati
 };
 
 export const nextProps = (props, currentState) => ({
-  roles: { $set: values(props.initialRoles || {}) },
-  roleSelected: { $set: values(props.initialRoles).map((r, idx) => currentState.roleSelected[idx] || false) },
-  roleExpanded: { $set: values(props.initialRoles).map((r, idx) => currentState.roleExpanded[idx] || false) },
+  roles: { $set: props.initialRoles || {} },
+  roleSelected: { $set: mapValues(props.initialRoles, r => currentState.roleSelected[r.id] || false) },
+  roleExpanded: { $set: mapValues(props.initialRoles, r => currentState.roleExpanded[r.id] || false) },
 });
 
 export const changeRoleMonthBudget = (roleId, month, value) => ({
@@ -114,7 +116,7 @@ const zeroTo = month => allocations => allocations.map((a, idx) => (idx < month 
 const doFillRight = (month, value) => arr => arr.map((a, idx) => (idx > month ? value : a));
 const doFillLeft = (month, value) => arr => arr.map((a, idx) => (idx < month ? value : a));
 
-export const splitAllocation = (roleId, allocIdx, newAlloc, month) => {
+export const splitAllocation = (roleId, allocId, newAlloc, month) => {
   const adjAlloc = update(newAlloc, {
     forecast: { $apply: a => zeroTo(month)(a) },
   });
@@ -123,7 +125,7 @@ export const splitAllocation = (roleId, allocIdx, newAlloc, month) => {
     roles: {
       [roleId]: {
         allocations: {
-          [allocIdx]: {
+          [allocId]: {
             forecast: {
               $apply: a => filler(a),
             },
@@ -131,19 +133,21 @@ export const splitAllocation = (roleId, allocIdx, newAlloc, month) => {
               $apply: a => filler(a),
             },
           },
-          $push: [adjAlloc],
+          $merge: {
+            [adjAlloc.id]: adjAlloc,
+          },
         },
       },
     },
   });
 };
-export const fillRight = (roleId, allocIdx, type, month, value) => {
+export const fillRight = (roleId, allocId, type, month, value) => {
   const filler = doFillRight(month, value);
   return ({
     roles: {
       [roleId]: {
         allocations: {
-          [allocIdx]: {
+          [allocId]: {
             [type]: {
               $apply: a => filler(a),
             },
@@ -153,13 +157,13 @@ export const fillRight = (roleId, allocIdx, type, month, value) => {
     },
   });
 };
-export const fillLeft = (roleId, allocIdx, type, month, value) => {
+export const fillLeft = (roleId, allocId, type, month, value) => {
   const filler = doFillLeft(month, value);
   return ({
     roles: {
       [roleId]: {
         allocations: {
-          [allocIdx]: {
+          [allocId]: {
             [type]: {
               $apply: a => filler(a),
             },
@@ -194,17 +198,19 @@ export const fillRoleLeft = (roleId, month, value) => {
   });
 };
 
-export const duplicateAllocation = name => ({
+export const duplicateAllocation = resource => ({
   id: { $set: uuid() },
-  resource: { name: { $set: name } },
+  resource: { $set: resource },
 });
 
-export const addAllocation = (roleIdx, alloc) => {
+export const addAllocation = (roleId, alloc) => {
   return ({
     roles: {
-      [roleIdx]: {
+      [roleId]: {
         allocations: {
-          $push: [alloc],
+          $merge: {
+            [alloc.id]: alloc,
+          },
         },
       },
     },
@@ -212,29 +218,31 @@ export const addAllocation = (roleIdx, alloc) => {
 };
 
 export const nextCell = (state) => {
-  console.log('next cell');
   const { activeMonth, activeAllocation, activeRole } = state;
   let toBeRole = activeRole;
   let toBeAllocation = activeAllocation;
   let toBeMonth = activeMonth + 1;
   if (activeMonth === 11) {
     const roleExpanded = state.roleExpanded[activeRole];
-    const allocations = state.roles[activeRole].allocations.length;
+    const { allocations } = state.roles[activeRole];
+    const numAllocations = size(allocations);
+    const allocationIndex = Number(findKey(values(allocations), a => a.id === activeAllocation));
+    const activeRoleIndex = Number(findKey(values(state.roles), r => r.id === activeRole));
     toBeMonth = 0;
-    if (roleExpanded && allocations > 0 && (activeAllocation === null || activeAllocation < allocations - 1)) {
+    if (roleExpanded && numAllocations > 0 && (activeAllocation === null || allocationIndex < numAllocations - 1)) {
       if (activeAllocation === null) {
-        toBeAllocation = 0;
+        toBeAllocation = values(allocations)[0].id;
       }
       else {
-        toBeAllocation = activeAllocation + 1;
+        toBeAllocation = values(allocations)[allocationIndex + 1].id;
       }
     }
-    else if (state.roles.length > activeRole + 1) {
-      toBeRole = activeRole + 1;
+    else if (size(state.roles) > activeRoleIndex + 1) {
+      toBeRole = values(state.roles)[activeRoleIndex + 1].id;
       toBeAllocation = null;
     }
     else {
-      toBeRole = 0;
+      toBeRole = values(state.roles)[0].id;
       toBeAllocation = null;
     }
   }
@@ -246,25 +254,28 @@ export const nextCell = (state) => {
 };
 
 export const previousCell = (state) => {
-  console.log('previous cell');
   const { activeMonth, activeAllocation, activeRole } = state;
   let toBeRole = activeRole;
   let toBeAllocation = activeAllocation;
-
+  let toBeMonth = activeMonth - 1;
+  const activeRoleIndex = Number(findKey(values(state.roles), r => r.id === activeRole));
   if (activeMonth === 0) {
+    toBeMonth = 11;
     if (activeAllocation !== null) {
-      toBeAllocation = (activeAllocation > 0) ? activeAllocation - 1 : null;
+      const { allocations } = state.roles[activeRole];
+      const allocationIndex = Number(findKey(values(allocations), a => a.id === activeAllocation));
+      toBeAllocation = (allocationIndex > 0) ? values(allocations)[allocationIndex - 1].id : null;
     }
-    else if (activeRole > 0) {
-      toBeRole = activeRole - 1;
-      const previousExpanded = state.roleExpanded[activeRole - 1];
-      const previousAllocations = state.roles[activeRole - 1].allocations.length;
-      if (previousExpanded && previousAllocations > 0) {
-        toBeAllocation = previousAllocations - 1;
+    else if (activeRoleIndex > 0) {
+      toBeRole = values(state.roles)[activeRoleIndex - 1].id;
+      const previousExpanded = state.roleExpanded[toBeRole];
+      const previousAllocations = state.roles[toBeRole].allocations;
+      const numPreviousAllocations = size(previousAllocations);
+      if (previousExpanded && numPreviousAllocations > 0) {
+        toBeAllocation = values(previousAllocations)[numPreviousAllocations - 1].id;
       }
     }
   }
-  const toBeMonth = (activeMonth === 0 ? 11 : activeMonth - 1);
   return ({
     activeMonth: { $set: toBeMonth },
     activeRole: { $set: toBeRole },
@@ -273,29 +284,31 @@ export const previousCell = (state) => {
 };
 
 export const nextRow = (state) => {
-  console.log('next row');
   const { activeAllocation, activeRole } = state;
   let toBeRole = activeRole;
   let toBeAllocation = activeAllocation;
   const roleExpanded = state.roleExpanded[activeRole];
-  const allocations = state.roles[activeRole].allocations.length;
+  const { allocations } = state.roles[activeRole];
+  const numAllocations = size(allocations);
+  const activeAllocationIndex = Number(findKey(values(allocations), i => i.id === activeAllocation));
+  const activeRoleIndex = Number(findKey(values(state.roles), i => i.id === activeRole));
   // next allocation
-  if (roleExpanded && allocations > 0 && (activeAllocation === null || activeAllocation < allocations - 1)) {
+  if (roleExpanded && numAllocations > 0 && (activeAllocation === null || activeAllocationIndex < numAllocations - 1)) {
     if (activeAllocation === null) {
-      toBeAllocation = 0;
+      toBeAllocation = values(allocations)[0].id;
     }
     else {
-      toBeAllocation = activeAllocation + 1;
+      toBeAllocation = values(allocations)[activeAllocationIndex + 1].id;
     }
   }
   // next role
-  else if (state.roles.length > activeRole + 1) {
-    toBeRole = activeRole + 1;
+  else if (size(state.roles) > activeRoleIndex + 1) {
+    toBeRole = values(state.roles)[activeRoleIndex + 1].id;
     toBeAllocation = null;
   }
   // wrap around
   else {
-    toBeRole = 0;
+    toBeRole = values(state.roles)[0].id;
     toBeAllocation = null;
   }
   return ({
@@ -305,30 +318,34 @@ export const nextRow = (state) => {
 };
 
 export const previousRow = (state) => {
-  console.log('previous row');
   const { activeAllocation, activeRole } = state;
   let toBeRole = activeRole;
   let toBeAllocation = activeAllocation;
 
+  const activeRoleIndex = Number(findKey(values(state.roles), r => r.id === activeRole));
   // previous allocation
   if (activeAllocation !== null) {
-    toBeAllocation = (activeAllocation > 0) ? activeAllocation - 1 : null;
+    const allocations = values(state.roles[activeRole].allocations);
+    const activeAllocationIndex = Number(findKey(allocations, a => a.id === activeAllocation));
+    toBeAllocation = (activeAllocationIndex > 0) ? allocations[activeAllocationIndex - 1].id : null;
   }
   // previous role
-  else if (activeRole > 0) {
-    toBeRole = activeRole - 1;
-    const previousExpanded = state.roleExpanded[activeRole - 1];
-    const previousAllocations = state.roles[activeRole - 1].allocations.length;
-    if (previousExpanded && previousAllocations > 0) {
-      toBeAllocation = previousAllocations - 1;
+  else if (activeRoleIndex > 0) {
+    toBeRole = values(state.roles)[activeRoleIndex - 1].id;
+    const previousExpanded = state.roleExpanded[toBeRole];
+    const previousAllocations = state.roles[toBeRole].allocations;
+    const numPreviousAllocations = size(previousAllocations);
+    if (previousExpanded && numPreviousAllocations > 0) {
+      toBeAllocation = values(previousAllocations)[numPreviousAllocations - 1].id;
     }
   }
   // wrap around
   else {
-    toBeRole = state.roles.length - 1;
+    toBeRole = values(state.roles)[size(state.roles) - 1].id;
     const targetRoleExpanded = state.roleExpanded[toBeRole];
-    const numAllocations = state.roles[toBeRole].allocations.length;
-    toBeAllocation = (!targetRoleExpanded || numAllocations === 0) ? null : numAllocations - 1;
+    const { allocations } = state.roles[toBeRole];
+    const numAllocations = size(allocations);
+    toBeAllocation = (!targetRoleExpanded || numAllocations === 0) ? null : values(allocations)[numAllocations - 1].id;
   }
   return ({
     activeRole: { $set: toBeRole },

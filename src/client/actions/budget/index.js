@@ -21,8 +21,10 @@ const keyedById = (list) => {
   return rv;
 };
 
-const toDbShape = budget => update(budget, { roles: { $apply: r => values(r || {}) } });
-const fromDbShape = budget => update(budget, { roles: { $apply: r => keyedById(r) } });
+// const toDbShape = budget => update(budget, { roles: { $apply: r => values(r || {}) } });
+// const fromDbShape = budget => update(budget, { roles: { $apply: r => keyedById(r) } });
+const toDbShape = budget => budget;
+const fromDbShape = budget => budget;
 
 export const addBudget = budget => (dispatch) => { // eslint-disable-line import/prefer-default-export
   api.post('/budgets/budgets', (toDbShape(budget)))
@@ -37,7 +39,7 @@ export const setCurrentBudget = id => (dispatch) => {
 };
 
 export const loadBudget = (projectId, budgetId) => (dispatch) => {
-  api.get(`/budgets/budgets/${projectId}/${budgetId}`)
+  api.get(`/budgets/budgets/${budgetId}`)
     .then((response) => {
       dispatch(budgetsLoaded({ budgets: [fromDbShape(response)] }));
     })

@@ -1,4 +1,5 @@
 import React from 'react';
+import keys from 'lodash/keys';
 import IconButton from 'material-ui/IconButton';
 import Checkbox from 'material-ui/Checkbox';
 import { withStyles } from 'material-ui/styles';
@@ -20,30 +21,32 @@ const RoleAllocations = ({
   onFillLeft, onFillRight, onChangeField, onCellFocussed, ...rest
 }) => {
   const rows = [];
-  rows.push(role.allocations.map((alloc, allocIdx) => (
-    <AllocationRow
-      key={allocIdx // eslint-disable-line react/no-array-index-key
-      }
-      allocation={alloc}
-      idx={allocIdx}
-      editing={editing}
-      onSplitAllocation={onSplitAllocation(allocIdx, 'forecast')}
-      onFillLeft={onFillLeft(allocIdx, 'forecast')}
-      onFillRight={onFillRight(allocIdx, 'forecast')}
-      onChangeMonthAllocation={onChangeMonthAllocation('forecast')}
-      type={'forecast'}
-      onChangeField={onChangeField(allocIdx)}
-      onCellFocussed={onCellFocussed(allocIdx)}
-      roleResources={rest.staticData.getResourcesForRole(role.role)}
-      {...rest}
-    />
-  )));
+  rows.push(keys(role.allocations).map((allocId) => {
+    const alloc = role.allocations[allocId];
+    return (
+      <AllocationRow
+        key={allocId}
+        roleId={role.id}
+        allocation={alloc}
+        editing={editing}
+        onSplitAllocation={onSplitAllocation(allocId, 'forecast')}
+        onFillLeft={onFillLeft(allocId, 'forecast')}
+        onFillRight={onFillRight(allocId, 'forecast')}
+        onChangeMonthAllocation={onChangeMonthAllocation('forecast')}
+        type={'forecast'}
+        onChangeField={onChangeField(allocId)}
+        onCellFocussed={onCellFocussed(allocId)}
+        roleResources={rest.staticData.getResourcesForRole(role.role)}
+        {...rest}
+      />
+    );
+  }));
   if (editing) rows.push(<RoleAllocationsActions onAddAllocation={onAddAllocation} key={'allocActions'} />);
   return rows;
 };
 
 export default withStyles(budgetStyles)(({
-  role, idx, editing, classes, onToggleSelected, selected, onChangeMonthBudget, onChangeField,
+  role, editing, classes, onToggleSelected, selected, onChangeMonthBudget, onChangeField,
   onFillRoleLeft, onFillRoleRight,
   onChangeAllocationField, activeAllocation, activeRole, activeMonth, expanded, ...rest
 }) => {
@@ -56,15 +59,15 @@ export default withStyles(budgetStyles)(({
           <TableCell className={classes.checkCell}>
             <Checkbox
               className={classes.check}
-              checked={selected[idx]}
-              onChange={createAsyncFunction(onToggleSelected(idx))}
+              checked={selected[role.id]}
+              onChange={createAsyncFunction(onToggleSelected(role.id))}
             />
           </TableCell>
         }
         <TableCell className={classes.expandCell}>
-          <IconButton onClick={createAsyncFunction(rest.onSetRoleExpanded(idx, !expanded[idx]))}>
-            {expanded[idx] && <ExpandMore />}
-            {!expanded[idx] && <ChevronRight />}
+          <IconButton onClick={createAsyncFunction(rest.onSetRoleExpanded(role.id, !expanded[role.id]))}>
+            {expanded[role.id] && <ExpandMore />}
+            {!expanded[role.id] && <ChevronRight />}
           </IconButton>
         </TableCell>
         <GenericCell editing={editing} onChange={onChangeField('role')} options={getRoleOptions(rest.staticData.roles)} displayValue={rest.staticData.getRoleDisplayName(roleType)} value={roleType} />
@@ -84,7 +87,7 @@ export default withStyles(budgetStyles)(({
               className={classes.cell}
               onChange={onChangeMonthBudget(month)}
               month={month}
-              autoFocus={activeAllocation === null && activeRole === idx && activeMonth === month}
+              autoFocus={activeAllocation === null && activeRole === role.id && activeMonth === month}
               value={role.budget[month]}
               keyActions={[
                 {
@@ -126,12 +129,12 @@ export default withStyles(budgetStyles)(({
                 {
                   key: Keys.Codes.ARROW_DOWN,
                   modifiers: [Mods.ALT],
-                  action: rest.onSetRoleExpanded(idx, true),
+                  action: rest.onSetRoleExpanded(role.id, true),
                 },
                 {
                   key: Keys.Codes.ARROW_UP,
                   modifiers: [Mods.ALT],
-                  action: rest.onSetRoleExpanded(idx, false),
+                  action: rest.onSetRoleExpanded(role.id, false),
                 },
               ]}
               editingActions={{
@@ -143,9 +146,8 @@ export default withStyles(budgetStyles)(({
         })}
       </TableRow>
       {
-        expanded[idx] && role.allocations &&
+        expanded[role.id] && role.allocations &&
         <RoleAllocations
-          roleIdx={idx}
           cellClassName={classes.cell}
           role={role}
           onChangeField={onChangeAllocationField}
